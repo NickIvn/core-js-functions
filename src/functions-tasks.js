@@ -18,7 +18,7 @@
  *
  */
 function getCurrentFunctionName() {
-  throw new Error('Not implemented');
+  return getCurrentFunctionName.name;
 }
 
 /**
@@ -32,8 +32,11 @@ function getCurrentFunctionName() {
  *   getFunctionBody(hiHello) => "function hiHello() { console.log('hello world'); }"
  *
  */
-function getFunctionBody(/* func */) {
-  throw new Error('Not implemented');
+function getFunctionBody(func) {
+  if (typeof func === 'function') {
+    return func.toString();
+  }
+  return '';
 }
 
 /**
@@ -50,8 +53,8 @@ function getFunctionBody(/* func */) {
  *  ]) => [0, 1, 2]
  *
  */
-function getArgumentsCount(/* funcs */) {
-  throw new Error('Not implemented');
+function getArgumentsCount(funcs) {
+  return funcs.map((func) => func.length);
 }
 
 /**
@@ -70,8 +73,10 @@ function getArgumentsCount(/* funcs */) {
  *   power05(16) => 4
  *
  */
-function getPowerFunction(/* exponent */) {
-  throw new Error('Not implemented');
+function getPowerFunction(exponent) {
+  return function power(x) {
+    return x ** exponent;
+  };
 }
 
 /**
@@ -87,8 +92,19 @@ function getPowerFunction(/* exponent */) {
  *   getPolynom(8)     => y = 8
  *   getPolynom()      => null
  */
-function getPolynom() {
-  throw new Error('Not implemented');
+function getPolynom(...args) {
+  if (args.length === 0) {
+    return null;
+  }
+  return (x) => {
+    let degree = args.length - 1;
+    let result = 0;
+    for (let i = 0; i < args.length; i += 1) {
+      result += args[i] * x ** degree;
+      degree -= 1;
+    }
+    return result;
+  };
 }
 
 /**
@@ -105,8 +121,17 @@ function getPolynom() {
  *   ...
  *   memoizer() => the same random number  (next run, returns the previous cached result)
  */
-function memoize(/* func */) {
-  throw new Error('Not implemented');
+function memoize(func) {
+  let cache = null;
+  let called = false;
+
+  return () => {
+    if (!called) {
+      cache = func();
+      called = true;
+    }
+    return cache;
+  };
 }
 
 /**
@@ -124,8 +149,17 @@ function memoize(/* func */) {
  * }, 2);
  * retryer() => 2
  */
-function retry(/* func, attempts */) {
-  throw new Error('Not implemented');
+function retry(func, attempts) {
+  return () => {
+    for (let i = 0; i < attempts; i += 1) {
+      try {
+        return func();
+      } catch (error) {
+        // console.error(`Attempt ${i + 1} failed: ${error.message}`);
+      }
+    }
+    throw new Error();
+  };
 }
 
 /**
@@ -151,8 +185,35 @@ function retry(/* func, attempts */) {
  * cos(3.141592653589793) ends
  *
  */
-function logger(/* func, logFunc */) {
-  throw new Error('Not implemented');
+function logger(func, logFunc) {
+  return (...args) => {
+    const functionName = func.name || 'anonymous';
+
+    logFunc(
+      `${functionName}(${args
+        .map((arg) => JSON.stringify(arg))
+        .join(',')}) starts`
+    );
+
+    try {
+      const result = func.apply(this, args);
+
+      logFunc(
+        `${functionName}(${args
+          .map((arg) => JSON.stringify(arg))
+          .join(',')}) ends`
+      );
+
+      return result;
+    } catch (error) {
+      logFunc(
+        `${functionName}(${args
+          .map((arg) => JSON.stringify(arg))
+          .join(', ')}) threw an error: ${error.message}`
+      );
+      throw error;
+    }
+  };
 }
 
 /**
@@ -168,8 +229,11 @@ function logger(/* func, logFunc */) {
  *   partialUsingArguments(fn, 'a','b','c')('d') => 'abcd'
  *   partialUsingArguments(fn, 'a','b','c','d')() => 'abcd'
  */
-function partialUsingArguments(/* fn, ...args1 */) {
-  throw new Error('Not implemented');
+function partialUsingArguments(fn, ...args1) {
+  return (...args2) => {
+    const allArgs = [...args1, ...args2];
+    return fn.apply(this, allArgs);
+  };
 }
 
 /**
@@ -189,8 +253,13 @@ function partialUsingArguments(/* fn, ...args1 */) {
  *   getId4() => 7
  *   getId10() => 11
  */
-function getIdGeneratorFunction(/* startFrom */) {
-  throw new Error('Not implemented');
+function getIdGeneratorFunction(startFrom) {
+  let currentId = startFrom;
+  return () => {
+    const nextId = currentId;
+    currentId += 1;
+    return nextId;
+  };
 }
 
 module.exports = {
